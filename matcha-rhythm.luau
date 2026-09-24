@@ -13,6 +13,28 @@ local RunService = game:GetService("RunService")
 local UserInputService = game:GetService("UserInputService")
 local LocalPlayer = Players.LocalPlayer
 
+-- ============ NOTIFICATION SYSTEM ============
+local function notifyUser(title, text)
+    -- Method 1: Roblox's built-in notification system
+    local success, err = pcall(function()
+        game:GetService("StarterGui"):SetCore("SendNotification", {
+            Title = title,
+            Text = text,
+            Duration = 3
+        })
+    end)
+    if success then return end
+
+    -- Method 2: Matcha's built-in notify function (if available)
+    if notify then
+        pcall(function() notify(text, title, 3) end)
+        return
+    end
+
+    -- Method 3: Fallback to console
+    print(string.format("[%s] %s", title, text))
+end
+
 -- ============ CONFIG ============
 local CONFIG = {
     baseHitWindow       = 18,
@@ -43,9 +65,9 @@ if UserInputService then
         if input.KeyCode == Enum.KeyCode.RightShift then
             state.enabled = not state.enabled
             if state.enabled then
-                print("[Auto Rhythm] ENABLED")
+                notifyUser("Auto Rhythm", "ENABLED")
             else
-                print("[Auto Rhythm] DISABLED")
+                notifyUser("Auto Rhythm", "DISABLED")
                 for _, h in pairs(state.activeHolds) do
                     if keyrelease then keyrelease(h.key) else game:GetService("VirtualInputManager"):SendKeyEvent(false, h.key, false, game) end
                 end
@@ -54,9 +76,9 @@ if UserInputService then
             end
         end
     end)
-    print("[Auto Rhythm] Loaded. Press RIGHT SHIFT to toggle.")
+    notifyUser("Auto Rhythm", "Loaded. Press RIGHT SHIFT to toggle.")
 else
-    print("[Auto Rhythm] Loaded. UserInputService missing, script is always ON.")
+    notifyUser("Auto Rhythm", "Loaded. Script is always ON.")
 end
 
 -- ============ KEY PRESS HELPERS ============
