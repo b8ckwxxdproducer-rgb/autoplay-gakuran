@@ -22,10 +22,9 @@ local CONFIG = {
     receptorRefresh       = 0.5,
     laneMatchTolerance    = 40,
     longNoteMinHeight     = 60,   -- px; notes taller than this are long notes
-    -- KEYBINDS: Change these to match the keys you press in Gakuran.
-    -- Order: leftmost lane -> rightmost lane.
-    keys2Lane = {70, 74},              -- F, J
-    keys4Lane = {68, 70, 74, 75},      -- D, F, J, K
+    -- KEYBINDS: X, C, N, M
+    keys2Lane = {88, 77},              -- X, M (fallback for 2-lane)
+    keys4Lane = {88, 67, 78, 77},      -- X, C, N, M
 }
 
 -- ============ STATE ============
@@ -91,7 +90,7 @@ local function refreshReceptors()
     if n == 2 then keys = CONFIG.keys2Lane
     elseif n == 4 then keys = CONFIG.keys4Lane
     else
-        local def = {68, 70, 74, 75, 71, 72}
+        local def = {88, 67, 78, 77, 86, 66}
         keys = {}
         for i = 1, n do keys[i] = def[i] or def[#def] end
     end
