@@ -13,26 +13,24 @@ local RunService = game:GetService("RunService")
 local UserInputService = game:GetService("UserInputService")
 local LocalPlayer = Players.LocalPlayer
 
--- ============ NOTIFICATION SYSTEM ============
-local function notifyUser(title, text)
-    -- Method 1: Roblox's built-in notification system
-    local success, err = pcall(function()
-        game:GetService("StarterGui"):SetCore("SendNotification", {
-            Title = title,
-            Text = text,
-            Duration = 3
-        })
-    end)
-    if success then return end
+-- ============ MATCHA DRAWING UI ============
+local toggleText = nil
+if Drawing then
+    toggleText = Drawing.new("Text")
+    toggleText.Size = 24
+    toggleText.Position = Vector2.new(20, 100) -- Top left corner
+    toggleText.Outline = true
+    toggleText.Visible = true
+    toggleText.Font = 2 -- 2 is usually the bold/clear font
+end
 
-    -- Method 2: Matcha's built-in notify function (if available)
-    if notify then
-        pcall(function() notify(text, title, 3) end)
-        return
+local function updateUI(enabled)
+    if toggleText then
+        toggleText.Text = "Auto Rhythm: " .. (enabled and "ENABLED" or "DISABLED")
+        toggleText.Color = enabled and Color3.fromRGB(50, 255, 50) or Color3.fromRGB(255, 50, 50)
     end
-
-    -- Method 3: Fallback to console
-    print(string.format("[%s] %s", title, text))
+    -- Fallback to console just in case Drawing isn't available
+    print("[Auto Rhythm] " .. (enabled and "ENABLED" or "DISABLED"))
 end
 
 -- ============ CONFIG ============
@@ -64,10 +62,8 @@ if UserInputService then
         if gameProcessed then return end
         if input.KeyCode == Enum.KeyCode.RightShift then
             state.enabled = not state.enabled
-            if state.enabled then
-                notifyUser("Auto Rhythm", "ENABLED")
-            else
-                notifyUser("Auto Rhythm", "DISABLED")
+            updateUI(state.enabled)
+            if not state.enabled then
                 for _, h in pairs(state.activeHolds) do
                     if keyrelease then keyrelease(h.key) else game:GetService("VirtualInputManager"):SendKeyEvent(false, h.key, false, game) end
                 end
@@ -76,9 +72,10 @@ if UserInputService then
             end
         end
     end)
-    notifyUser("Auto Rhythm", "Loaded. Press RIGHT SHIFT to toggle.")
+    updateUI(state.enabled) -- Set initial UI state
 else
-    notifyUser("Auto Rhythm", "Loaded. Script is always ON.")
+    updateUI(state.enabled)
+    print("[Auto Rhythm] UserInputService missing, script is always ON.")
 end
 
 -- ============ KEY PRESS HELPERS ============
